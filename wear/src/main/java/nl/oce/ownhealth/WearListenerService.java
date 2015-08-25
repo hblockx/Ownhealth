@@ -40,6 +40,9 @@ public class WearListenerService extends WearableListenerService implements Sens
     Sensor mHeartRateSensor;
     SensorManager mSensorManager;
 
+    int currentHR;
+    String currentLocation;
+
     public WearListenerService() {
 
 
@@ -47,12 +50,15 @@ public class WearListenerService extends WearableListenerService implements Sens
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
+        mSensorManager = ((SensorManager)getSystemService(SENSOR_SERVICE));
+        mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .build();
 
         googleClient.connect();
         sendSensordata(googleClient);
+
 
         if (messageEvent.getPath().equals("/message_path")) {
             final String message = new String(messageEvent.getData());
@@ -87,11 +93,11 @@ public class WearListenerService extends WearableListenerService implements Sens
 
     public void sendSensordata(GoogleApiClient client){
 
-        DataMap dataMap = new DataMap();
 
-        dataMap.putString("hr", "5");
-        new CreateSensorDataThread(client,WEARABLE_DATA_PATH, dataMap).start();
 
+        if (mSensorManager != null){
+            mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
 
 
     }
@@ -135,8 +141,22 @@ public class WearListenerService extends WearableListenerService implements Sens
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
             currentHR = (int) event.values[0];
-            mTextView.setText(Integer.toString(currentHR));
+
+            DataMap dataMap = new DataMap();
+
+            if(currentHR > 0){
+                dataMap.putString("hr",Integer.toString(currentHR));
+
+                GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
+                        .addApi(Wearable.API)
+                        .build();
+                new CreateSensorDataThread(googleClient,WEARABLE_DATA_PATH, dataMap).start();
+
+            }
+
         }
+        if (mSensorManager!=null && currentHR > 0)
+            mSensorManager.unregisterListener(this);
     }
 
     @Override
