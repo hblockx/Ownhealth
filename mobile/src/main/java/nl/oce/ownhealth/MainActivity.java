@@ -1,6 +1,7 @@
 package nl.oce.ownhealth;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
@@ -39,11 +40,13 @@ public class MainActivity extends Activity implements
     String WEARABLE_DATA_PATH = "/wearable_data";
     GoogleApiClient googleClient;
 
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        context = this;
         Button b = (Button) findViewById(R.id.button1);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +55,28 @@ public class MainActivity extends Activity implements
                 new AskForSensorsThread("/message_path", message).start();
             }
         });
+
+        Button startbutton = (Button) findViewById(R.id.startServiceButton);
+        startbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // use this to start and trigger a service
+                Intent i= new Intent(context, TrackingService.class);
+
+                context.startService(i);
+
+            }
+        });
+
+        Button stopbutton = (Button) findViewById(R.id.stopServiceButton);
+        stopbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i= new Intent(context, TrackingService.class);
+                context.stopService(i);
+            }
+        });
+
 
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)

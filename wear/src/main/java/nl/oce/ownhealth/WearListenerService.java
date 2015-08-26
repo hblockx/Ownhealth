@@ -32,7 +32,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.google.android.gms.wearable.WearableStatusCodes;
 
-public class WearListenerService extends WearableListenerService implements SensorEventListener {
+public class WearListenerService extends WearableListenerService  {
 
     String WEARABLE_DATA_PATH = "/wearable_data";
     GoogleApiClient googleClient;
@@ -43,6 +43,8 @@ public class WearListenerService extends WearableListenerService implements Sens
     int currentHR;
     String currentLocation;
 
+    HeartRateListener heartRateListener;
+
     public WearListenerService() {
 
 
@@ -50,21 +52,21 @@ public class WearListenerService extends WearableListenerService implements Sens
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        mSensorManager = ((SensorManager)getSystemService(SENSOR_SERVICE));
-        mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-        GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .build();
-
-        googleClient.connect();
-        sendSensordata(googleClient);
 
 
         if (messageEvent.getPath().equals("/message_path")) {
             final String message = new String(messageEvent.getData());
-            Log.v("myTag", "Message path received on watch is: " + messageEvent.getPath());
-            Log.v("myTag", "Message received on watch is: " + message);
+            Log.v("Watch", "Message path received on watch is: " + messageEvent.getPath());
+            Log.v("Watch", "Message received on watch is: " + message);
 
+
+            googleClient = new GoogleApiClient.Builder(this)
+                    .addApi(Wearable.API)
+                    .build();
+
+            googleClient.connect();
+
+            registerSensorListener();
 
         }
         else {
@@ -72,37 +74,23 @@ public class WearListenerService extends WearableListenerService implements Sens
         }
     }
 
-    @Override
-    public void onDataChanged(DataEventBuffer dataEvents) {
-
-        DataMap dataMap;
-        for (DataEvent event : dataEvents) {
-
-            // Check the data type
-            if (event.getType() == DataEvent.TYPE_CHANGED) {
-                // Check the data path
-                String path = event.getDataItem().getUri().getPath();
-                if (path.equals(WEARABLE_DATA_PATH)) {
-
-                }
-                dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
-                Log.v("myTag", "DataMap received on watch: " + dataMap);
-            }
-        }
+    private void registerSensorListener() {
+        mSensorManager = ((SensorManager)getSystemService(SENSOR_SERVICE));
+        mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+        heartRateListener = new HeartRateListener();
+        this.mSensorManager.registerListener(heartRateListener, mSensorManager
+                .getDefaultSensor(Sensor.TYPE_HEART_RATE), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    public void sendSensordata(GoogleApiClient client){
-
-
-
-        if (mSensorManager != null){
-            mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-
+    private void unregisterSensorListener() {
+        Log.v("Watch", "Listener is uregistered: " + this.mSensorManager.toString());
+        Log.v("Watch", "Listener is uregistered: " + this.toString());
+        Log.v("Watch", "Listener is uregistered: " + heartRateListener.toString());
+        mSensorManager = ((SensorManager)getSystemService(SENSOR_SERVICE));
+        this.mSensorManager.unregisterListener(heartRateListener, mSensorManager
+                .getDefaultSensor(Sensor.TYPE_HEART_RATE));
 
     }
-
-
 
 
 
@@ -137,32 +125,40 @@ public class WearListenerService extends WearableListenerService implements Sens
         }
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
-            currentHR = (int) event.values[0];
 
-            DataMap dataMap = new DataMap();
 
-            if(currentHR > 0){
-                dataMap.putString("hr",Integer.toString(currentHR));
+    class HeartRateListener implements SensorEventListener {
 
-                GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
-                        .addApi(Wearable.API)
-                        .build();
-                new CreateSensorDataThread(googleClient,WEARABLE_DATA_PATH, dataMap).start();
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
+                currentHR = (int) event.values[0];
+                Log.v("HR", "" + currentHR);
+                DataMap dataMap = new DataMap();
+
+                if (currentHR > 0) {
+                    dataMap.putString("hr", Integer.toString(currentHR));
+
+                    //    GoogleApiClient googleClient = new GoogleApiClient.Builder(this)
+                    //            .addApi(Wearable.API)
+                    //            .build();
+                    new CreateSensorDataThread(googleClient, WEARABLE_DATA_PATH, dataMap).start();
+                    Log.v("HR", "" + mSensorManager.toString());
+                    if (mSensorManager != null && currentHR > 0) {
+                        mSensorManager.unregisterListener(this);
+                        unregisterSensorListener();
+                    }
+                }
 
             }
 
+
         }
-        if (mSensorManager!=null && currentHR > 0)
-            mSensorManager.unregisterListener(this);
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            // Does not matter @ HR
+        }
     }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        // Does not matter @ HR
-    }
-
 }
