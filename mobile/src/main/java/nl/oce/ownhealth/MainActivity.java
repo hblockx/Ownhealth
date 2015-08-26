@@ -60,8 +60,7 @@ public class MainActivity extends Activity implements
                 new AskForSensorsThread("/message_path", message).start();
             }
         });
-
-
+        
         Button startbutton = (Button) findViewById(R.id.startServiceButton);
         startbutton.setOnClickListener(new View.OnClickListener() {
             @Override
