@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -60,8 +61,7 @@ public class MainActivity extends Activity implements
         final CreateMockUserAndJson mockUserData = new CreateMockUserAndJson();
         final String jSonModel = UserJSonProvider.serializeModelToJson(mockUserData.getUserModel());
 
-        final TextView resultView = (TextView) findViewById(R.id.jSonSerialized);
-        resultView.setText(jSonModel);
+        new ConnectionTask().execute(jSonModel);
 
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -207,7 +207,7 @@ public class MainActivity extends Activity implements
                 PutDataMapRequest putDMR = PutDataMapRequest.create(path);
                 putDMR.getDataMap().putAll(dataMap);
                 PutDataRequest request = putDMR.asPutDataRequest();
-                DataApi.DataItemResult result = Wearable.DataApi.putDataItem(googleClient,request).await();
+                DataApi.DataItemResult result = Wearable.DataApi.putDataItem(googleClient, request).await();
                 if (result.getStatus().isSuccess()) {
                     Log.v("myTag", "DataMap: " + dataMap + " sent to: " + node.getDisplayName());
                 } else {
@@ -217,6 +217,8 @@ public class MainActivity extends Activity implements
             }
         }
     }
-
-
 }
+
+
+
+
