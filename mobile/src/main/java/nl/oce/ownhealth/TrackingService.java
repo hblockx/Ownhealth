@@ -1,10 +1,11 @@
 package nl.oce.ownhealth;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -19,9 +20,14 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Date;
 
 public class TrackingService extends Service implements
         DataApi.DataListener, GoogleApiClient.ConnectionCallbacks,
@@ -34,6 +40,8 @@ public class TrackingService extends Service implements
 
     int SLEEPTIME = 30000;
 
+    String output;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return Service.START_NOT_STICKY;
@@ -41,6 +49,7 @@ public class TrackingService extends Service implements
 
     @Override
     public void onCreate() {
+        output = "";
         super.onCreate();
         context = this;
         isRunning = true;
@@ -88,6 +97,7 @@ public class TrackingService extends Service implements
                 googleClient.connect();
             }
             if(googleClient.isConnected()){
+                Wearable.DataApi.removeListener(googleClient,this);
                 Wearable.DataApi.addListener(googleClient, this);
                 String message = "Hello wearable\n give me your sensors";
                 new AskForSensorsThread("/message_path", message).start();
@@ -112,8 +122,31 @@ public class TrackingService extends Service implements
                 dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                 Log.v("myTag", "DataMap received on Phone: " + dataMap);
                 Wearable.DataApi.removeListener(googleClient, this);
+                safeData(dataMap);
             }
         }
+    }
+
+    public void safeData(DataMap data){
+        Date date = new Date();
+        output +=date.getTime()+","+ data;
+
+        try {
+            File sdcard = Environment.getDataDirectory();
+            // to this path add a new directory path
+            File file = new File(sdcard.getAbsolutePath() ,"trackedData.txt");
+            if(!file.exists()){
+                file.createNewFile();
+            }
+
+            FileOutputStream os =  new FileOutputStream(file);
+            os.write(output.getBytes());
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 
@@ -163,7 +196,6 @@ public class TrackingService extends Service implements
                     Log.v("Smartphone", "ERROR: failed to send Message");
                 }
             }
-            googleClient.disconnect();
         }
     }
 
@@ -174,6 +206,7 @@ public class TrackingService extends Service implements
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+        googleClient.connect();
         Log.v("CONNECTION", "FAILED");
     }
 
