@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -30,6 +31,9 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.Date;
+
+import nl.oce.ownhealth.JSon.CreateMockUserAndJson;
+import nl.oce.ownhealth.JSon.UserJSonProvider;
 
 
 public class MainActivity extends Activity implements
@@ -52,6 +56,12 @@ public class MainActivity extends Activity implements
                 new AskForSensorsThread("/message_path", message).start();
             }
         });
+
+        final CreateMockUserAndJson mockUserData = new CreateMockUserAndJson();
+        final String jSonModel = UserJSonProvider.serializeModelToJson(mockUserData.getUserModel());
+
+        final TextView resultView = (TextView) findViewById(R.id.jSonSerialized);
+        resultView.setText(jSonModel);
 
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
