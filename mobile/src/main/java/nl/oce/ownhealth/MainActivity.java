@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,6 +33,9 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.Date;
+
+import nl.oce.ownhealth.JSon.CreateMockUserAndJson;
+import nl.oce.ownhealth.JSon.UserJSonProvider;
 
 
 public class MainActivity extends Activity implements
@@ -77,6 +82,11 @@ public class MainActivity extends Activity implements
             }
         });
 
+
+        final CreateMockUserAndJson mockUserData = new CreateMockUserAndJson();
+        final String jSonModel = UserJSonProvider.serializeModelToJson(mockUserData.getUserModel());
+
+        new ConnectionTask().execute(jSonModel);
 
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -222,7 +232,7 @@ public class MainActivity extends Activity implements
                 PutDataMapRequest putDMR = PutDataMapRequest.create(path);
                 putDMR.getDataMap().putAll(dataMap);
                 PutDataRequest request = putDMR.asPutDataRequest();
-                DataApi.DataItemResult result = Wearable.DataApi.putDataItem(googleClient,request).await();
+                DataApi.DataItemResult result = Wearable.DataApi.putDataItem(googleClient, request).await();
                 if (result.getStatus().isSuccess()) {
                     Log.v("myTag", "DataMap: " + dataMap + " sent to: " + node.getDisplayName());
                 } else {
@@ -232,6 +242,8 @@ public class MainActivity extends Activity implements
             }
         }
     }
-
-
 }
+
+
+
+

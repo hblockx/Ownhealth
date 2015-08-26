@@ -4,4 +4,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-</resources>
+    <string name="title_activity_user_data_form">bla</string>
+
+
+   </resources>
