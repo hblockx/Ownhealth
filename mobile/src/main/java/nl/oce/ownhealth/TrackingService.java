@@ -27,7 +27,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class TrackingService extends Service implements
         DataApi.DataListener, GoogleApiClient.ConnectionCallbacks,
@@ -129,10 +133,12 @@ public class TrackingService extends Service implements
 
     public void safeData(DataMap data){
         Date date = new Date();
-        output +=date.getTime()+","+ data;
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.GERMAN);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        output +=dateFormat.format(date)+","+ data+"\n";
 
         try {
-            File sdcard = Environment.getDataDirectory();
+            File sdcard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             // to this path add a new directory path
             File file = new File(sdcard.getAbsolutePath() ,"trackedData.txt");
             if(!file.exists()){
