@@ -17,9 +17,12 @@ public class PersonalDataModel {
     @SerializedName("age")
     private Integer age;
 
+<<<<<<< HEAD
     @SerializedName("weight")
     private Float weight;
 
+=======
+>>>>>>> User model with json builder and mock data model for testing.
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -36,10 +39,13 @@ public class PersonalDataModel {
         this.age = age;
     }
 
+<<<<<<< HEAD
     public void setWeight(Float weight) {
         this.weight = weight;
     }
 
+=======
+>>>>>>> User model with json builder and mock data model for testing.
     public String getFirstName() {
         return firstName;
     }
@@ -55,8 +61,11 @@ public class PersonalDataModel {
     public Integer getAge() {
         return age;
     }
+<<<<<<< HEAD
 
     public Float getWeight() {
         return weight;
     }
+=======
+>>>>>>> User model with json builder and mock data model for testing.
 }
