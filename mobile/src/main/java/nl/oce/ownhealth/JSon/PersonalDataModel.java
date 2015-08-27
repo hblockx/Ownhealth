@@ -17,6 +17,9 @@ public class PersonalDataModel {
     @SerializedName("age")
     private Integer age;
 
+    @SerializedName("weight")
+    private Float weight;
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -33,6 +36,10 @@ public class PersonalDataModel {
         this.age = age;
     }
 
+    public void setWeight(Float weight) {
+        this.weight = weight;
+    }
+
     public String getFirstName() {
         return firstName;
     }
@@ -47,5 +54,9 @@ public class PersonalDataModel {
 
     public Integer getAge() {
         return age;
+    }
+
+    public Float getWeight() {
+        return weight;
     }
 }

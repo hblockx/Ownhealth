@@ -34,6 +34,7 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.util.Date;
 
+import nl.oce.ownhealth.Form.UserDataForm;
 import nl.oce.ownhealth.JSon.CreateMockUserAndJson;
 import nl.oce.ownhealth.JSon.UserJSonProvider;
 
@@ -82,11 +83,20 @@ public class MainActivity extends Activity implements
             }
         });
 
+        Button editButton = (Button) findViewById(R.id.editProfileButton);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, UserDataForm.class);
+                startActivity(intent);
+            }
+        });
 
-        final CreateMockUserAndJson mockUserData = new CreateMockUserAndJson();
-        final String jSonModel = UserJSonProvider.serializeModelToJson(mockUserData.getUserModel());
 
-        new ConnectionTask().execute(jSonModel);
+//        final CreateMockUserAndJson mockUserData = new CreateMockUserAndJson();
+//        final String jSonModel = UserJSonProvider.serializeModelToJson(mockUserData.getUserModel());
+//
+//        new ConnectionTask().execute(jSonModel);
 
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
