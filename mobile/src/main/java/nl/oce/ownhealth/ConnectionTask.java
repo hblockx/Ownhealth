@@ -12,11 +12,10 @@ public class ConnectionTask extends AsyncTask<String, Integer, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        final CreateMockUserAndJson mockUserData = new CreateMockUserAndJson();
-        final String jSonModel = UserJSonProvider.serializeModelToJson(mockUserData.getUserModel());
+
 
         UDPSender udpsender = new UDPSender("192.168.33.251", 5000);
-        udpsender.sendData(jSonModel);
+        udpsender.sendData(params[0]);
 
         return null;
     }

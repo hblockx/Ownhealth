@@ -1,6 +1,6 @@
 package nl.oce.ownhealth.Form;
 
-<<<<<<< HEAD
+
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,18 +17,18 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import nl.oce.ownhealth.JSon.PersonalDataModel;
-=======
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
->>>>>>> User model with json builder and mock data model for testing.
+
 import nl.oce.ownhealth.R;
 
 public class UserDataForm extends ActionBarActivity {
 
-<<<<<<< HEAD
+
     private PersonalDataModel personalData;
 
     private EditText firstNameField;
@@ -40,13 +40,11 @@ public class UserDataForm extends ActionBarActivity {
     private RadioButton femaleRadioButton;
     private Button saveFormButton;
 
-=======
->>>>>>> User model with json builder and mock data model for testing.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data_form);
-<<<<<<< HEAD
+
 
         Log.e("Hello", "World");
 
@@ -68,8 +66,7 @@ public class UserDataForm extends ActionBarActivity {
         maleRadioButton = (RadioButton) findViewById(R.id.maleRB);
         femaleRadioButton = (RadioButton) findViewById(R.id.femaleRB);
         saveFormButton = (Button) findViewById(R.id.saveButton);
-=======
->>>>>>> User model with json builder and mock data model for testing.
+
     }
 
     @Override
@@ -93,7 +90,6 @@ public class UserDataForm extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-<<<<<<< HEAD
 
     private void atachListeners(){
         atachListenerToRadioButtonsGroup();
@@ -195,6 +191,5 @@ public class UserDataForm extends ActionBarActivity {
 
     }
 
-=======
->>>>>>> User model with json builder and mock data model for testing.
+
 }

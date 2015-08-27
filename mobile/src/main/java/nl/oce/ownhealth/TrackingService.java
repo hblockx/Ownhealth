@@ -33,6 +33,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import nl.oce.ownhealth.JSon.PersonalDataModel;
+import nl.oce.ownhealth.JSon.UserBiologicalData;
+import nl.oce.ownhealth.JSon.UserJSonProvider;
+import nl.oce.ownhealth.JSon.UserModel;
+
 public class TrackingService extends Service implements
         DataApi.DataListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,DataApi.DataItemResult {
@@ -126,17 +131,42 @@ public class TrackingService extends Service implements
                 dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                 Log.v("myTag", "DataMap received on Phone: " + dataMap);
                 Wearable.DataApi.removeListener(googleClient, this);
-                safeData(dataMap);
+                saveData(dataMap);
             }
         }
     }
 
-    public void safeData(DataMap data){
+    public void saveData(DataMap data){
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.GERMAN);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        output +=dateFormat.format(date)+","+ data+"\n";
 
+
+        int hr = Integer.valueOf(data.getString("hr"));
+
+
+        UserBiologicalData ubd = new UserBiologicalData();
+         PersonalDataModel pdm = new PersonalDataModel();
+        UserModel um = new UserModel();
+
+        ubd.setHeartRate(hr);
+
+        pdm.setFirstName("James");
+        pdm.setLastName("Bond");
+        pdm.setSex("male");
+        pdm.setAge(24);
+
+        um.setPersonalData(pdm);
+        um.setTrackData(ubd);
+        um.setTimeStamp(dateFormat.format(date));
+
+        String jSonModel = UserJSonProvider.serializeModelToJson(um);
+
+        new ConnectionTask().execute(jSonModel);
+
+
+
+        output +=dateFormat.format(date)+","+ data+"\n";
         try {
             File sdcard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             // to this path add a new directory path
